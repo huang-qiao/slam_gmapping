@@ -561,6 +561,21 @@ SlamGMapping::addScan(const sensor_msgs::LaserScan& scan, GMapping::OrientedPoin
         ranges_double[i] = (double)scan.ranges[i];
     }
   }
+  
+  // qiao@20150728: simulate IR -> eliminate scans 
+  unsigned int num_ranges = scan.ranges.size();
+  unsigned int half_ir_angle = (unsigned int)(num_ranges/100);
+  unsigned int l2i_idx_min = (unsigned int)(num_ranges/2) - half_ir_angle;
+  unsigned int l2i_idx_max = (unsigned int)(num_ranges/2) + half_ir_angle;
+  for (unsigned int i=0; i<num_ranges; i++) {
+	  ranges_double[i] = -0.01;
+	  if (l2i_idx_min < i && i < l2i_idx_max) {
+		  ranges_double[i] = (double)scan.ranges[(unsigned int)(num_ranges/2)];
+			std::cout << "ranges_double[" << i << "]=" << ranges_double[i] << std::endl; 
+	  }
+		// debug
+  }
+  // end
 
   GMapping::RangeReading reading(scan.ranges.size(),
                                  ranges_double,
